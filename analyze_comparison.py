@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Audit local matrix witnesses or recompute a sanitized publication; diagnostics stay separate."""
 import argparse
+import hashlib
 import json
 import math
 import statistics
@@ -108,7 +109,6 @@ def audit(directory):
     validate(manifest, rows, complete)
     for name, sha in manifest['source_sha256'].items():
         data = subprocess.check_output(['git', 'show', manifest['revision'] + ':' + name], cwd=ROOT)
-        import hashlib
         if hashlib.sha256(data).hexdigest() != sha:
             raise ValueError('Source differs from committed comparison revision')
     for row in rows:
@@ -137,5 +137,21 @@ def audit(directory):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('directories', type=Path, nargs='+')
+    parser.add_argument('--published', action='store_true', help='Recompute sanitized exports without private artifacts')
     args = parser.parse_args()
-    print(json.dumps([audit(path) for path in args.directories], indent=2))
+    if args.published:
+        result = []
+        for path in args.directories:
+            data = json.loads(path.read_text())
+            if data['schemaVersion'] != 1 or sorted(g['manifest']['mode'] for g in data['groups']) != ['diagnostic', 'primary', 'serial']:
+                raise ValueError('Incomplete published experiment groups')
+            for group in data['groups']:
+                validate(group['manifest'], group['runs'], group['complete'])
+                for name, sha in group['manifest']['source_sha256'].items():
+                    content = subprocess.check_output(['git', 'show', group['manifest']['revision'] + ':' + name], cwd=ROOT)
+                    if hashlib.sha256(content).hexdigest() != sha:
+                        raise ValueError('Published source identity differs')
+                result.append(summarize(group['manifest'], group['runs']))
+    else:
+        result = [audit(path) for path in args.directories]
+    print(json.dumps(result, indent=2))

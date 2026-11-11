@@ -21,6 +21,10 @@ See [methodology and limitations](RESULTS.md), [sanitized measurements](results/
 and [environment](results/environment.json). All88 performance attempts are included;
 12 allocation-diagnostic attempts are kept separate from76 uninstrumented attempts.
 
+A subsequent [controlled.NET10/11 comparison](RUNTIME_COMPARISON.md) adds96 separate
+measurements, including application runtime async. It shows no general throughput
+improvement on this host. The original measurements above remain unchanged.
+
 ## Run locally
 
 Requirements: Linux with `/proc`, Git, Python3.11+, OpenSSL, .NET SDK10.0.403,

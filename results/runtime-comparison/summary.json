@@ -1,0 +1,1266 @@
+[
+  {
+    "mode": "primary",
+    "attempts": 72,
+    "cells": [
+      {
+        "workload": "p348",
+        "variant": "net10-classic",
+        "transport": "quic",
+        "attempts": 6,
+        "deliveredFramesPerSecond": {
+          "median": 5376344.845388623,
+          "values": [
+            4158470.7876881976,
+            5604056.24375795,
+            5445037.577441422,
+            5143122.270671398,
+            5392653.648773751,
+            5360036.042003494
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 1870968006.1952405,
+          "values": [
+            1447147834.1154928,
+            1950211572.8277667,
+            1894873076.949615,
+            1789806550.1936467,
+            1876643469.7732654,
+            1865292542.6172159
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 1081.2754568866094,
+          "values": [
+            1145.7055177842294,
+            1074.0582624636136,
+            1030.8696533693517,
+            1088.4926513096052,
+            1097.4670894200558,
+            1070.53899267705
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      },
+      {
+        "workload": "p348",
+        "variant": "net10-classic",
+        "transport": "tls",
+        "attempts": 6,
+        "deliveredFramesPerSecond": {
+          "median": 6500960.672647586,
+          "values": [
+            5701370.114238796,
+            6712308.3637948055,
+            6450979.771924803,
+            7489337.033279482,
+            6550941.573370368,
+            6299630.351815742
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 2262334314.08136,
+          "values": [
+            1984076799.755101,
+            2335883310.6005926,
+            2244940960.6298313,
+            2606289287.5812597,
+            2279727667.532888,
+            2192271362.4318786
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 1024.4021356919811,
+          "values": [
+            1099.1400286705832,
+            991.6771263207072,
+            1020.3404427520798,
+            938.7564641298651,
+            1028.4638286318823,
+            1060.7459239328848
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      },
+      {
+        "workload": "p348",
+        "variant": "net11-classic",
+        "transport": "quic",
+        "attempts": 6,
+        "deliveredFramesPerSecond": {
+          "median": 5298600.836536511,
+          "values": [
+            5275699.884359885,
+            5424454.764863709,
+            5325081.081441433,
+            4955240.517096842,
+            5321501.788713137,
+            5260606.806045511
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 1843913091.1147056,
+          "values": [
+            1835943559.7572398,
+            1887710258.172571,
+            1853128216.3416188,
+            1724423699.949701,
+            1851882622.4721715,
+            1830691168.5038378
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 1401.384758307121,
+          "values": [
+            1364.6431244926491,
+            1485.334093742442,
+            1438.1263921215932,
+            1452.5474700531497,
+            1266.6910745917885,
+            1357.1363579337149
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      },
+      {
+        "workload": "p348",
+        "variant": "net11-classic",
+        "transport": "tls",
+        "attempts": 6,
+        "deliveredFramesPerSecond": {
+          "median": 5677438.89157421,
+          "values": [
+            5671459.143367394,
+            6052579.8305903785,
+            5683418.639781025,
+            4667822.226028544,
+            5636058.004748565,
+            5726708.901420527
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 1975748734.2678251,
+          "values": [
+            1973667781.891853,
+            2106297781.0454516,
+            1977829686.643797,
+            1624402134.6579332,
+            1961348185.6525009,
+            1992894697.6943436
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 1610.1346789812594,
+          "values": [
+            1633.9301016129764,
+            1586.3392563495424,
+            1540.1157385632016,
+            1423.679846310466,
+            1747.6683108625512,
+            1646.7379954418682
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      },
+      {
+        "workload": "p348",
+        "variant": "net11-runtime-async",
+        "transport": "quic",
+        "attempts": 6,
+        "deliveredFramesPerSecond": {
+          "median": 5143591.373426009,
+          "values": [
+            5038484.307973196,
+            5076887.372511935,
+            5445551.831574255,
+            5068271.989720532,
+            5224733.729972333,
+            5210295.374340083
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 1789969797.952251,
+          "values": [
+            1753392539.1746721,
+            1766756805.6341534,
+            1895052037.3878405,
+            1763758652.422745,
+            1818207338.0303717,
+            1813182790.2703488
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 1473.3070025765146,
+          "values": [
+            1503.017129483718,
+            1495.8786598461766,
+            1183.7701155053896,
+            1478.408878063358,
+            1385.0874714952708,
+            1468.2051270896711
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      },
+      {
+        "workload": "p348",
+        "variant": "net11-runtime-async",
+        "transport": "tls",
+        "attempts": 6,
+        "deliveredFramesPerSecond": {
+          "median": 5679440.193941422,
+          "values": [
+            5940492.538472345,
+            5394147.925361758,
+            5730522.6183867315,
+            4653929.516156954,
+            5672850.902836194,
+            5686029.48504665
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 1976445187.4916148,
+          "values": [
+            2067291403.388376,
+            1877163478.0258918,
+            1994221871.1985826,
+            1619567471.6226199,
+            1974152114.1869955,
+            1978738260.7962344
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 1581.3392236423676,
+          "values": [
+            1505.3949445375495,
+            1638.0031025180524,
+            1695.7383465920407,
+            1524.6753447666829,
+            1726.8543893089404,
+            1507.2912318918738
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      },
+      {
+        "workload": "p4096",
+        "variant": "net10-classic",
+        "transport": "quic",
+        "attempts": 6,
+        "deliveredFramesPerSecond": {
+          "median": 472178.9112381615,
+          "values": [
+            471523.5655535353,
+            481987.8923746787,
+            472999.5388268663,
+            472834.25692278764,
+            459072.1575173091,
+            468201.09638564975
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 1934044820.4315095,
+          "values": [
+            1931360524.5072806,
+            1974222407.166684,
+            1937406111.0348444,
+            1936729116.3557382,
+            1880359557.1908982,
+            1917751690.7956214
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 12197.904244693555,
+          "values": [
+            12125.870472676119,
+            12423.982489535736,
+            12637.046080773485,
+            12269.93801671099,
+            12105.294647265546,
+            11959.647680271091
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      },
+      {
+        "workload": "p4096",
+        "variant": "net10-classic",
+        "transport": "tls",
+        "attempts": 6,
+        "deliveredFramesPerSecond": {
+          "median": 755880.9538880783,
+          "values": [
+            746690.2390106416,
+            751833.6347815542,
+            759928.2729946024,
+            771159.3968748698,
+            747883.466365781,
+            764369.1362796007
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 3096088387.125569,
+          "values": [
+            3058443218.987588,
+            3079510568.065246,
+            3112666206.1858916,
+            3158668889.599467,
+            3063330678.234239,
+            3130855982.2012444
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 8389.301271043078,
+          "values": [
+            8460.240902004245,
+            8408.822297149014,
+            8399.922583644753,
+            8341.91936547044,
+            8199.624505422387,
+            8378.6799584414
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      },
+      {
+        "workload": "p4096",
+        "variant": "net11-classic",
+        "transport": "quic",
+        "attempts": 6,
+        "deliveredFramesPerSecond": {
+          "median": 475397.90743282216,
+          "values": [
+            466872.75792178465,
+            487362.55147567164,
+            477842.3943418901,
+            477985.0036018602,
+            472953.4205237542,
+            469753.3682528384
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 1947229828.8448396,
+          "values": [
+            1912310816.44763,
+            1996237010.844351,
+            1957242447.224382,
+            1957826574.7532194,
+            1937217210.4652972,
+            1924109796.363626
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 14856.267074102241,
+          "values": [
+            15712.593282749585,
+            13834.030271320215,
+            15082.863171846118,
+            15113.942513045009,
+            14629.670976358364,
+            14280.367770581546
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      },
+      {
+        "workload": "p4096",
+        "variant": "net11-classic",
+        "transport": "tls",
+        "attempts": 6,
+        "deliveredFramesPerSecond": {
+          "median": 743506.0963220189,
+          "values": [
+            740915.6206528823,
+            802917.4075786578,
+            746096.5719911556,
+            706412.653560731,
+            722795.4654555002,
+            753244.9835791895
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 3045400970.5349894,
+          "values": [
+            3034790382.1942058,
+            3288749701.4421825,
+            3056011558.8757734,
+            2893466228.984754,
+            2960570226.5057287,
+            3085291452.7403603
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 11342.477512019479,
+          "values": [
+            10739.66548683913,
+            9335.832928565795,
+            11182.074092440755,
+            12225.653729505151,
+            11639.646332760338,
+            11502.880931598203
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      },
+      {
+        "workload": "p4096",
+        "variant": "net11-runtime-async",
+        "transport": "quic",
+        "attempts": 6,
+        "deliveredFramesPerSecond": {
+          "median": 464736.2845109503,
+          "values": [
+            470346.67796737957,
+            481430.8367664069,
+            459558.5692451377,
+            461076.18057976675,
+            462391.11438408523,
+            467081.4546378155
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 1903559821.3568525,
+          "values": [
+            1926539992.9543867,
+            1971940707.3952026,
+            1882351899.628084,
+            1888568035.6547246,
+            1893954004.517213,
+            1913165638.1964922
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 14917.140643101417,
+          "values": [
+            15099.13242518784,
+            14102.639304309298,
+            16437.920436062166,
+            15588.379284481434,
+            14735.148861014994,
+            14435.440327984672
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      },
+      {
+        "workload": "p4096",
+        "variant": "net11-runtime-async",
+        "transport": "tls",
+        "attempts": 6,
+        "deliveredFramesPerSecond": {
+          "median": 732739.8924417589,
+          "values": [
+            735042.3957346221,
+            760860.2266305996,
+            720405.015575676,
+            733875.2346351772,
+            720799.239752593,
+            731604.5502483407
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 3001302599.4414444,
+          "values": [
+            3010733652.9290123,
+            3116483488.278936,
+            2950778943.797969,
+            3005952961.0656857,
+            2952393686.026621,
+            2996652237.8172035
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 12203.295021932652,
+          "values": [
+            11856.02014348035,
+            11668.032199770001,
+            12845.971562884613,
+            12457.166508262562,
+            13291.180037480592,
+            11949.423535602742
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      }
+    ],
+    "pairedRuntimeChanges": [
+      {
+        "workload": "p348",
+        "transport": "quic",
+        "baseline": "net10-classic",
+        "candidate": "net11-classic",
+        "throughputPercentChanges": [
+          26.86634471449021,
+          -3.204847900916219,
+          -2.2030425739753223,
+          -3.6530679942405886,
+          -1.3194220266082524,
+          -1.855010585354533
+        ],
+        "medianPairedPercentChange": -2.0290265796649276
+      },
+      {
+        "workload": "p348",
+        "transport": "quic",
+        "baseline": "net11-classic",
+        "candidate": "net11-runtime-async",
+        "throughputPercentChanges": [
+          -4.49638117380271,
+          -6.40741618131101,
+          2.262327057379032,
+          2.281049168727578,
+          -1.818435144493391,
+          -0.9563807667132496
+        ],
+        "medianPairedPercentChange": -1.3874079556033203
+      },
+      {
+        "workload": "p348",
+        "transport": "tls",
+        "baseline": "net10-classic",
+        "candidate": "net11-classic",
+        "throughputPercentChanges": [
+          -0.5246277696776991,
+          -9.82863863589618,
+          -11.89836519848143,
+          -37.67375930223606,
+          -13.965680480815346,
+          -9.094524891132416
+        ],
+        "medianPairedPercentChange": -10.863501917188806
+      },
+      {
+        "workload": "p348",
+        "transport": "tls",
+        "baseline": "net11-classic",
+        "candidate": "net11-runtime-async",
+        "throughputPercentChanges": [
+          4.743636307767085,
+          -10.878533181848105,
+          0.8287965675447984,
+          -0.29762722740643843,
+          0.6528126228763087,
+          -0.7103454545033028
+        ],
+        "medianPairedPercentChange": 0.17759269773493513
+      },
+      {
+        "workload": "p4096",
+        "transport": "quic",
+        "baseline": "net10-classic",
+        "candidate": "net11-classic",
+        "throughputPercentChanges": [
+          -0.986336202792093,
+          1.1151025131591608,
+          1.0238605151783098,
+          1.089334498010719,
+          3.02376495266361,
+          0.3315395626305895
+        ],
+        "medianPairedPercentChange": 1.0565975065945143
+      },
+      {
+        "workload": "p4096",
+        "transport": "quic",
+        "baseline": "net11-classic",
+        "candidate": "net11-runtime-async",
+        "throughputPercentChanges": [
+          0.7440828334166705,
+          -1.2171051491962737,
+          -3.8263296252593726,
+          -3.5375216575157964,
+          -2.2332656201052847,
+          -0.5687907305402806
+        ],
+        "medianPairedPercentChange": -1.7251853846507792
+      },
+      {
+        "workload": "p4096",
+        "transport": "tls",
+        "baseline": "net10-classic",
+        "candidate": "net11-classic",
+        "throughputPercentChanges": [
+          -0.7733619720823759,
+          6.794558055645661,
+          -1.8201324381498685,
+          -8.396025980689025,
+          -3.354533431818185,
+          -1.4553377644936805
+        ],
+        "medianPairedPercentChange": -1.6377351013217745
+      },
+      {
+        "workload": "p4096",
+        "transport": "tls",
+        "baseline": "net11-classic",
+        "candidate": "net11-runtime-async",
+        "throughputPercentChanges": [
+          -0.7926982175223585,
+          -5.2380457256356205,
+          -3.4434625998769786,
+          3.887611714770234,
+          -0.27618127095597744,
+          -2.872960829824589
+        ],
+        "medianPairedPercentChange": -1.8328295236734737
+      }
+    ]
+  },
+  {
+    "mode": "diagnostic",
+    "attempts": 12,
+    "cells": [
+      {
+        "workload": "p348",
+        "variant": "net10-classic",
+        "transport": "quic",
+        "attempts": 2,
+        "deliveredFramesPerSecond": {
+          "median": 5325940.812541176,
+          "values": [
+            5351121.6465791715,
+            5300759.978503181
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 1853427402.7643294,
+          "values": [
+            1862190333.0095518,
+            1844664472.5191069
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 1085.8694987780295,
+          "values": [
+            1095.4569793276623,
+            1076.282018228397
+          ]
+        },
+        "combinedManagedBytesPerFrame": {
+          "median": 2.9781331554004336,
+          "values": [
+            2.967099970075479,
+            2.989166340725388
+          ]
+        },
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      },
+      {
+        "workload": "p348",
+        "variant": "net10-classic",
+        "transport": "tls",
+        "attempts": 2,
+        "deliveredFramesPerSecond": {
+          "median": 6763355.972313172,
+          "values": [
+            6516629.024259336,
+            7010082.920367008
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 2353647878.364984,
+          "values": [
+            2267786900.4422493,
+            2439508856.287719
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 998.5693970293839,
+          "values": [
+            1015.5700905476562,
+            981.5687035111117
+          ]
+        },
+        "combinedManagedBytesPerFrame": {
+          "median": 1.512260116229179,
+          "values": [
+            1.5295345847198376,
+            1.4949856477385204
+          ]
+        },
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      },
+      {
+        "workload": "p348",
+        "variant": "net11-classic",
+        "transport": "quic",
+        "attempts": 2,
+        "deliveredFramesPerSecond": {
+          "median": 5257613.727345122,
+          "values": [
+            5246506.021192826,
+            5268721.433497418
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 1829649577.1161027,
+          "values": [
+            1825784095.3751037,
+            1833515058.8571014
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 1287.0057575092992,
+          "values": [
+            1126.9544696190935,
+            1447.0570453995047
+          ]
+        },
+        "combinedManagedBytesPerFrame": {
+          "median": 3.5662303991513036,
+          "values": [
+            3.5891795458906137,
+            3.5432812524119934
+          ]
+        },
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      },
+      {
+        "workload": "p348",
+        "variant": "net11-classic",
+        "transport": "tls",
+        "attempts": 2,
+        "deliveredFramesPerSecond": {
+          "median": 5735972.376307154,
+          "values": [
+            5797662.301650454,
+            5674282.450963853
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 1996118386.9548898,
+          "values": [
+            2017586480.9743583,
+            1974650292.935421
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 1632.9648377395451,
+          "values": [
+            1659.5964474126,
+            1606.3332280664902
+          ]
+        },
+        "combinedManagedBytesPerFrame": {
+          "median": 1.5004791825862767,
+          "values": [
+            1.4948431369843482,
+            1.5061152281882049
+          ]
+        },
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      },
+      {
+        "workload": "p348",
+        "variant": "net11-runtime-async",
+        "transport": "quic",
+        "attempts": 2,
+        "deliveredFramesPerSecond": {
+          "median": 5232673.738331508,
+          "values": [
+            5306362.558467042,
+            5158984.918195974
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 1820970460.939365,
+          "values": [
+            1846614170.3465307,
+            1795326751.532199
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 1418.3244902166846,
+          "values": [
+            1372.6714401008676,
+            1463.9775403325016
+          ]
+        },
+        "combinedManagedBytesPerFrame": {
+          "median": 2.93114034207585,
+          "values": [
+            2.9406295274674523,
+            2.9216511566842476
+          ]
+        },
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      },
+      {
+        "workload": "p348",
+        "variant": "net11-runtime-async",
+        "transport": "tls",
+        "attempts": 2,
+        "deliveredFramesPerSecond": {
+          "median": 5664378.05032491,
+          "values": [
+            5578121.609500448,
+            5750634.491149372
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 1971203561.513069,
+          "values": [
+            1941186320.106156,
+            2001220802.9199817
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 1648.9804583499752,
+          "values": [
+            1645.9399961183112,
+            1652.020920581639
+          ]
+        },
+        "combinedManagedBytesPerFrame": {
+          "median": 1.5551366689512658,
+          "values": [
+            1.6048328459710508,
+            1.5054404919314808
+          ]
+        },
+        "p50Us": null,
+        "p95Us": null,
+        "p99Us": null
+      }
+    ],
+    "pairedRuntimeChanges": [
+      {
+        "workload": "p348",
+        "transport": "quic",
+        "baseline": "net10-classic",
+        "candidate": "net11-classic",
+        "throughputPercentChanges": [
+          -1.9550223727995975,
+          -0.6044141809041115
+        ],
+        "medianPairedPercentChange": -1.2797182768518545
+      },
+      {
+        "workload": "p348",
+        "transport": "quic",
+        "baseline": "net11-classic",
+        "candidate": "net11-runtime-async",
+        "throughputPercentChanges": [
+          1.1408838002363808,
+          -2.082792128727129
+        ],
+        "medianPairedPercentChange": -0.47095416424537406
+      },
+      {
+        "workload": "p348",
+        "transport": "tls",
+        "baseline": "net10-classic",
+        "candidate": "net11-classic",
+        "throughputPercentChanges": [
+          -11.032801160422013,
+          -19.055416099603285
+        ],
+        "medianPairedPercentChange": -15.044108630012648
+      },
+      {
+        "workload": "p348",
+        "transport": "tls",
+        "baseline": "net11-classic",
+        "candidate": "net11-runtime-async",
+        "throughputPercentChanges": [
+          -3.786710586567077,
+          1.345580535430524
+        ],
+        "medianPairedPercentChange": -1.2205650255682765
+      }
+    ]
+  },
+  {
+    "mode": "serial",
+    "attempts": 12,
+    "cells": [
+      {
+        "workload": "serial-p348",
+        "variant": "net10-classic",
+        "transport": "quic",
+        "attempts": 2,
+        "deliveredFramesPerSecond": {
+          "median": 39306.99430577358,
+          "values": [
+            37673.12319496111,
+            40940.86541658604
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 13678834.018409204,
+          "values": [
+            13110246.871846465,
+            14247421.164971944
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 132448.935441759,
+          "values": [
+            137790.98667067772,
+            127106.88421284028
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": {
+          "median": 22.582500000000003,
+          "values": [
+            23.725,
+            21.44
+          ]
+        },
+        "p95Us": {
+          "median": 35.766999999999996,
+          "values": [
+            36.308,
+            35.226
+          ]
+        },
+        "p99Us": {
+          "median": 49.683499999999995,
+          "values": [
+            55.815,
+            43.552
+          ]
+        }
+      },
+      {
+        "workload": "serial-p348",
+        "variant": "net10-classic",
+        "transport": "tls",
+        "attempts": 2,
+        "deliveredFramesPerSecond": {
+          "median": 68226.04915777527,
+          "values": [
+            66553.43818958968,
+            69898.66012596086
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 23742665.106905796,
+          "values": [
+            23160596.48997721,
+            24324733.723834377
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 70298.4016341084,
+          "values": [
+            70486.25433856048,
+            70110.54892965633
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": {
+          "median": 12.614,
+          "values": [
+            13.035,
+            12.193
+          ]
+        },
+        "p95Us": {
+          "median": 18.2345,
+          "values": [
+            18.695,
+            17.774
+          ]
+        },
+        "p99Us": {
+          "median": 22.447499999999998,
+          "values": [
+            23.495,
+            21.4
+          ]
+        }
+      },
+      {
+        "workload": "serial-p348",
+        "variant": "net11-classic",
+        "transport": "quic",
+        "attempts": 2,
+        "deliveredFramesPerSecond": {
+          "median": 36066.199886966046,
+          "values": [
+            34435.34836884381,
+            37697.05140508828
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 12551037.560664183,
+          "values": [
+            11983501.232357645,
+            13118573.88897072
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 169849.77312187856,
+          "values": [
+            177658.75662464002,
+            162040.7896191171
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": {
+          "median": 25.774,
+          "values": [
+            27.262,
+            24.286
+          ]
+        },
+        "p95Us": {
+          "median": 35.411,
+          "values": [
+            36.538,
+            34.284
+          ]
+        },
+        "p99Us": {
+          "median": 50.3745,
+          "values": [
+            53.23,
+            47.519
+          ]
+        }
+      },
+      {
+        "workload": "serial-p348",
+        "variant": "net11-classic",
+        "transport": "tls",
+        "attempts": 2,
+        "deliveredFramesPerSecond": {
+          "median": 54075.55377687341,
+          "values": [
+            55642.31467215762,
+            52508.792881589194
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 18818292.714351945,
+          "values": [
+            19363525.50591085,
+            18273059.92279304
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 116375.51100427343,
+          "values": [
+            114788.96117511038,
+            117962.0608334365
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": {
+          "median": 17.238,
+          "values": [
+            16.652,
+            17.824
+          ]
+        },
+        "p95Us": {
+          "median": 25.999000000000002,
+          "values": [
+            25.007,
+            26.991
+          ]
+        },
+        "p99Us": {
+          "median": 30.963500000000003,
+          "values": [
+            30.568,
+            31.359
+          ]
+        }
+      },
+      {
+        "workload": "serial-p348",
+        "variant": "net11-runtime-async",
+        "transport": "quic",
+        "attempts": 2,
+        "deliveredFramesPerSecond": {
+          "median": 35594.9854114461,
+          "values": [
+            34858.86971036618,
+            36331.10111252601
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 12387054.923183244,
+          "values": [
+            12130886.659207433,
+            12643223.187159054
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 184845.18517102412,
+          "values": [
+            185937.04220773012,
+            183753.3281343181
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": {
+          "median": 26.3295,
+          "values": [
+            27.011,
+            25.648
+          ]
+        },
+        "p95Us": {
+          "median": 34.2245,
+          "values": [
+            34.565,
+            33.884
+          ]
+        },
+        "p99Us": {
+          "median": 46.332,
+          "values": [
+            45.145,
+            47.519
+          ]
+        }
+      },
+      {
+        "workload": "serial-p348",
+        "variant": "net11-runtime-async",
+        "transport": "tls",
+        "attempts": 2,
+        "deliveredFramesPerSecond": {
+          "median": 53835.88714883722,
+          "values": [
+            50739.06125395125,
+            56932.71304372318
+          ]
+        },
+        "deliveredPayloadBytesPerSecond": {
+          "median": 18734888.72779535,
+          "values": [
+            17657193.316375036,
+            19812584.139215667
+          ]
+        },
+        "combinedCpuNanosecondsPerFrame": {
+          "median": 124608.5709763587,
+          "values": [
+            129441.62541592897,
+            119775.51653678843
+          ]
+        },
+        "combinedManagedBytesPerFrame": null,
+        "p50Us": {
+          "median": 16.872,
+          "values": [
+            18.365,
+            15.379
+          ]
+        },
+        "p95Us": {
+          "median": 25.3285,
+          "values": [
+            26.14,
+            24.517
+          ]
+        },
+        "p99Us": {
+          "median": 30.542,
+          "values": [
+            31.108,
+            29.976
+          ]
+        }
+      }
+    ],
+    "pairedRuntimeChanges": [
+      {
+        "workload": "serial-p348",
+        "transport": "quic",
+        "baseline": "net10-classic",
+        "candidate": "net11-classic",
+        "throughputPercentChanges": [
+          -8.594389186586914,
+          -7.923169133067775
+        ],
+        "medianPairedPercentChange": -8.258779159827345
+      },
+      {
+        "workload": "serial-p348",
+        "transport": "quic",
+        "baseline": "net11-classic",
+        "candidate": "net11-runtime-async",
+        "throughputPercentChanges": [
+          1.2299028805689893,
+          -3.623493726031557
+        ],
+        "medianPairedPercentChange": -1.1967954227312838
+      },
+      {
+        "workload": "serial-p348",
+        "transport": "tls",
+        "baseline": "net10-classic",
+        "candidate": "net11-classic",
+        "throughputPercentChanges": [
+          -16.394530191437628,
+          -24.878684674404717
+        ],
+        "medianPairedPercentChange": -20.636607432921174
+      },
+      {
+        "workload": "serial-p348",
+        "transport": "tls",
+        "baseline": "net11-classic",
+        "candidate": "net11-runtime-async",
+        "throughputPercentChanges": [
+          -8.812094620966349,
+          8.425103529060785
+        ],
+        "medianPairedPercentChange": -0.19349554595278207
+      }
+    ]
+  }
+]
