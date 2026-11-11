@@ -1,0 +1,109 @@
+{
+  "capturedUtc": "2026-11-11T20:56:34.266416+00:00",
+  "kernel": "7.0.0-38-generic",
+  "architecture": "x86_64",
+  "cpu": "AMD Ryzen 9 9900X 12-Core Processor",
+  "affinity": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23
+  ],
+  "governor": "powersave",
+  "loadAverage": [
+    0.62109375,
+    0.568359375,
+    0.97802734375
+  ],
+  "operatingSystem": "Ubuntu 24.04.5 LTS",
+  "physicalCores": 12,
+  "logicalProcessors": 24,
+  "sdk": "10.0.403",
+  "cliHost": "11.0.0-rc.3.26522.148",
+  "endpointRuntime": ".NET 10.0.14",
+  "build": "Release",
+  "serverGc": true,
+  "tieredPgo": true,
+  "gcLatencyMode": "Interactive",
+  "nativeVersions": {
+    "msquic": "2.6.3",
+    "openssl": "3.0.13-0ubuntu3.16",
+    "glibc": "2.39-0ubuntu8.9",
+    "gperftools": "2.15-3build1"
+  },
+  "nativePins": {
+    "libcrypto.so.3": "6866ed711dab8927e1bf82bf1cd30e828bdfc34f3cc1e83b1c9eb01ce6c37d9a",
+    "libmsquic.so.2.6.3": "d4e0fc0ad65c0c6b6704fd3f44f01798196143a3d1a31856ba20fba9ebad5a12",
+    "libssl.so.3": "a40e7b67489bbd257e432c700ff8f6a1ad796425b5eccecdc2930127fdd86624",
+    "libcoreclr.so": "843b66a2b33a570537c779283b27f7c1f3ff5394e5a72436bf181c885d4cdfff"
+  },
+  "loadedManagedAssemblySha256": {
+    "quic-client": {
+      "System.Net.Sockets.dll": "5fe8da6f65d3000b328b13ccbd7ccaa4483354a5b0342f2325bf51a2d4ebc572",
+      "System.Net.Quic.dll": "8b8a4ef87e1b403541db1caed92dee7d8380f7e5c7d5e7a9c63a43178e869233",
+      "System.Private.CoreLib.dll": "dbe82a7a9a38f468d8dafb7890a3301f904c420718a8a985a302aa182c1268bc",
+      "System.Net.Security.dll": "df23123fd6e49878087e87287f1bf1bf22260aaf01a3683a2c62e333b35c2049"
+    },
+    "quic-server": {
+      "System.Net.Sockets.dll": "5fe8da6f65d3000b328b13ccbd7ccaa4483354a5b0342f2325bf51a2d4ebc572",
+      "System.Net.Quic.dll": "8b8a4ef87e1b403541db1caed92dee7d8380f7e5c7d5e7a9c63a43178e869233",
+      "System.Private.CoreLib.dll": "dbe82a7a9a38f468d8dafb7890a3301f904c420718a8a985a302aa182c1268bc",
+      "System.Net.Security.dll": "df23123fd6e49878087e87287f1bf1bf22260aaf01a3683a2c62e333b35c2049"
+    },
+    "tls-client": {
+      "System.Net.Sockets.dll": "5fe8da6f65d3000b328b13ccbd7ccaa4483354a5b0342f2325bf51a2d4ebc572",
+      "System.Net.Quic.dll": "8b8a4ef87e1b403541db1caed92dee7d8380f7e5c7d5e7a9c63a43178e869233",
+      "System.Private.CoreLib.dll": "dbe82a7a9a38f468d8dafb7890a3301f904c420718a8a985a302aa182c1268bc",
+      "System.Net.Security.dll": "df23123fd6e49878087e87287f1bf1bf22260aaf01a3683a2c62e333b35c2049"
+    },
+    "tls-server": {
+      "System.Net.Sockets.dll": "5fe8da6f65d3000b328b13ccbd7ccaa4483354a5b0342f2325bf51a2d4ebc572",
+      "System.Net.Quic.dll": "8b8a4ef87e1b403541db1caed92dee7d8380f7e5c7d5e7a9c63a43178e869233",
+      "System.Private.CoreLib.dll": "dbe82a7a9a38f468d8dafb7890a3301f904c420718a8a985a302aa182c1268bc",
+      "System.Net.Security.dll": "df23123fd6e49878087e87287f1bf1bf22260aaf01a3683a2c62e333b35c2049"
+    }
+  },
+  "network": {
+    "interface": "lo",
+    "mtu": 65536,
+    "interfaceGso": true,
+    "interfaceGro": true,
+    "txUdpSegmentation": true,
+    "nativeTraceGsoGroObserved": true,
+    "dominantNativeSegmentBytes": 1472,
+    "dominantNativeBatchBytes": 64768
+  },
+  "measurementLimits": [
+    "Nondedicated desktop; unrelated activity was observed. Per-block load snapshots accompany primary evidence.",
+    "Endpoint security/runtime/native maps checked for every attempt; managed assembly hashes separately checked in four E06 endpoints.",
+    "Process leader affinity 0-23; diagnostic snapshots also record per-thread affinity. No dedicated CPU isolation.",
+    "perf_event_paranoid=4; perf task-clock denied. Userspace per-thread CPU timers provide native and JIT leaf samples; no kernel stacks or complete off-CPU attribution.",
+    "Loopback result; no hardware NIC offload, two-host, multiple-stream or impaired-network conclusion."
+  ],
+  "profiler": {
+    "originalRegistrarSha256": "7f49e224917ff33f32dc1d2ead106aa23d63af8c5f09d184f596f1dffcef8307",
+    "filteredRegistrarSha256": "bbcbf3868fd4b5c1b7e224a1e902e54249e2da71b988015260e61aeace71a552",
+    "librarySha256": "4de292cb738a2daebd150b7b16f0e0a69a906152118a5f5d475573074408803f",
+    "traceLibrarySha256": "bc9dfa228e996d19e4eb70bd5af1128ae345f4d045ace09c6a67a71280391e74"
+  }
+}

@@ -25,6 +25,11 @@ A subsequent [controlled.NET10/11 comparison](RUNTIME_COMPARISON.md) adds96 sepa
 measurements, including application runtime async. It shows no general throughput
 improvement on this host. The original measurements above remain unchanged.
 
+A [causal follow-up](CAUSAL_INVESTIGATION.md) adds 80 separate attempts and native
+worker profiles. Larger application credit and writes helped both transports; QUIC
+still trailed. It includes a [blog research packet](BLOG_RESEARCH.md), complete points,
+negative controls, diagnostic overhead and reproducibility limits.
+
 ## Run locally
 
 Requirements: Linux with `/proc`, Git, Python3.11+, OpenSSL, .NET SDK10.0.403,
