@@ -107,7 +107,7 @@ def main():
         for r in b['runs']:
             table.append(dict(attempt=r['id'],experiment=b['experiment'],cell=b['cell'],transport=r['transport'],measurementClass=b['measurementClass'],**r['metrics']))
     with (args.output/'attempts.csv').open('w',newline='') as f:
-        w=csv.DictWriter(f,fieldnames=list(table[0]));w.writeheader();w.writerows(table)
+        w=csv.DictWriter(f,fieldnames=list(table[0]),lineterminator="\n");w.writeheader();w.writerows(table)
     diagnostic=[]
     for b in blocks:
         if b['measurementClass']!='progress-diagnostic':continue
@@ -121,7 +121,7 @@ def main():
                 point[key+'MeanUs']=p[key]['totalTicks']/freq*1e6/p[key]['count']
             diagnostic.append(point)
     with (args.output/'progress.csv').open('w',newline='') as f:
-        w=csv.DictWriter(f,fieldnames=list(diagnostic[0]));w.writeheader();w.writerows(diagnostic)
+        w=csv.DictWriter(f,fieldnames=list(diagnostic[0]),lineterminator="\n");w.writeheader();w.writerows(diagnostic)
     env=load(JOURNAL/'e00-environment-private.json')
     environment=dict(capturedUtc=env['capturedUtc'],**keep(env,['kernel','architecture','cpu','affinity','governor','loadAverage']),
         operatingSystem='Ubuntu 24.04.5 LTS',physicalCores=12,logicalProcessors=24,
