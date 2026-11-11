@@ -1,0 +1,28 @@
+{
+  "measurementDate": "2026-11-11",
+  "applicationRuntime": ".NET 10.0.14",
+  "sdk": "10.0.403",
+  "cliHost": "11.0.0-rc.3.26522.148",
+  "msquic": "2.6.3",
+  "platform": "Linux x64, Ubuntu24.04",
+  "hostSnapshotAtPublication": {
+    "kernel": "7.0.0-38-generic",
+    "cpu": "AMD Ryzen 9 9900X 12-Core Processor",
+    "logicalProcessors": 24,
+    "affinityProcessorCount": 24
+  },
+  "tls": "TLS1.3 / TLS_AES_128_GCM_SHA256 / mutual authentication",
+  "serverGC": true,
+  "tieredPGO": true,
+  "scenario": "Single bidirectional persistent QUIC stream versus full-duplex NetworkStream/SslStream, loopback, separate client/server processes",
+  "warmupSeconds": 2,
+  "measurementSeconds": 6,
+  "performanceAttempts": 88,
+  "uninstrumentedAttempts": 76,
+  "diagnosticAttempts": 12,
+  "invalidPerformanceAttempts": 0,
+  "acceptedCorrectnessCases": 34,
+  "positiveCorrectnessCases": 14,
+  "expectedFailureCorrectnessCases": 20,
+  "sanitization": "Explicit allowlist export; paths, usernames, hostnames, certificate fingerprints/bytes, keys, private links, full dotnet-info and raw logs excluded. Original log and source hashes retained for provenance; original logs are not public. Host CPU/kernel snapshot collected at publication, not separately within each original run."
+}

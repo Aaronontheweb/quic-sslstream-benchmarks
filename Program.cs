@@ -42,12 +42,14 @@ internal static class Program
 
 internal sealed record Options(string Role, string Transport, string Certificate, string Pin, int Port,
     int Payload, int BatchCap, int Window, int RequestedAckEvery, double Warmup, double Seconds,
-    long Frames, bool Diagnostics, int Fragment, string Corrupt, string Cancellation, int AbortAfterMilliseconds)
+    long Frames, bool Diagnostics, int Fragment, string Corrupt, string Cancellation, int AbortAfterMilliseconds,
+    int RequestedAckBoundary)
 {
     internal int FrameBytes => checked(Payload + 8);
     internal int BatchFrames => Math.Min(Window, BatchCap == 0 ? 1 : BatchCap / FrameBytes);
     internal int BatchBytes => checked(BatchFrames * FrameBytes);
     internal int AckEvery => Math.Min(Window, RequestedAckEvery);
+    internal int AckBoundary => RequestedAckBoundary == 0 ? BatchFrames : RequestedAckBoundary;
 
     internal static Options Parse(string[] args)
     {
@@ -55,7 +57,7 @@ internal sealed record Options(string Role, string Transport, string Certificate
             throw new ArgumentException("First argument must be server or client.");
         var values = new Dictionary<string, string>();
         var known = new HashSet<string>(["transport", "cert", "pin", "port", "payload", "batch", "window",
-            "ack-every", "warmup", "seconds", "frames", "diagnostics", "fragment", "corrupt", "cancellation", "abort-after-ms"]);
+            "ack-every", "warmup", "seconds", "frames", "diagnostics", "fragment", "corrupt", "cancellation", "abort-after-ms", "ack-boundary"]);
         for (var i = 1; i < args.Length; i += 2)
         {
             if (i + 1 == args.Length || !args[i].StartsWith("--", StringComparison.Ordinal)
@@ -69,11 +71,12 @@ internal sealed record Options(string Role, string Transport, string Certificate
             Number("port", 0), Number("payload", 348), Number("batch", 16384), Number("window", 1280),
             Number("ack-every", 10), Real("warmup", 2), Real("seconds", 6),
             long.Parse(Get("frames", "0"), System.Globalization.CultureInfo.InvariantCulture),
-            bool.Parse(Get("diagnostics", "false")), Number("fragment", 0), Get("corrupt", "none"), Get("cancellation", "operation"), Number("abort-after-ms", 0));
+            bool.Parse(Get("diagnostics", "false")), Number("fragment", 0), Get("corrupt", "none"), Get("cancellation", "operation"), Number("abort-after-ms", 0), Number("ack-boundary", 0));
         if (result.Transport is not ("quic" or "tls") || !File.Exists(result.Certificate) || result.Pin.Length != 40
             || result.Port is < 0 or > 65535 || (result.Role == "client" && result.Port == 0)
             || result.Payload is < 1 or > 65536 || result.BatchCap is < 0 or > 1048576
             || result.Window is < 1 or > 65536 || result.RequestedAckEvery < 1 || result.BatchFrames < 1
+            || result.RequestedAckBoundary < 0 || result.AckBoundary > result.Window || result.AckBoundary % result.BatchFrames != 0
             || result.Warmup < 0.01 || result.Warmup > 20 || result.Seconds < 0.01 || result.Seconds > 30
             || !double.IsFinite(result.Warmup) || !double.IsFinite(result.Seconds) || result.Frames < 0
             || result.Fragment < 0 || result.Corrupt is not ("none" or "sequence" or "payload")

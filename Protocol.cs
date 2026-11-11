@@ -80,7 +80,8 @@ internal static class Protocol
                 payloadBytes = o.Payload, frameBytes = o.FrameBytes, dataBytes = s.DataBytes,
                 batchFrames = o.BatchFrames, batchBytes = o.BatchBytes, windowFrames = o.Window,
                 creditBytes = (long)o.Window * o.FrameBytes, requestedAckEvery = o.RequestedAckEvery,
-                effectiveAckEvery = o.AckEvery, ackAtBatchBoundary = true,
+                effectiveAckEvery = o.AckEvery, ackAtBatchBoundary = o.RequestedAckBoundary == 0,
+                ackBoundaryFrames = o.AckBoundary,
                 elapsedSeconds = elapsed, cpuMilliseconds = cpu, allocatedBytes = allocated,
                 dataWrites = s.DataWrites, dataReads = s.DataReads, ackWrites = s.AckWrites, ackReads = s.AckReads,
                 maximumInFlight = s.MaximumInFlight, cancellation = o.Cancellation, diagnostics,
@@ -104,6 +105,7 @@ internal static class Protocol
         BinaryPrimitives.WriteInt64LittleEndian(header.AsSpan(40), BitConverter.DoubleToInt64Bits(phase == 0 ? o.Warmup : o.Seconds));
         BinaryPrimitives.WriteInt32LittleEndian(header.AsSpan(48), o.Diagnostics ? 1 : 0);
         BinaryPrimitives.WriteInt32LittleEndian(header.AsSpan(52), o.Cancellation == "operation" ? 0 : 1);
+        BinaryPrimitives.WriteInt32LittleEndian(header.AsSpan(56), o.AckBoundary);
         return header;
     }
 
@@ -293,7 +295,9 @@ internal static class Protocol
                 state.Received++;
                 state.DataBytes += o.FrameBytes;
                 offset += o.FrameBytes;
-                if (state.Received % o.AckEvery == 0 || state.Received % o.BatchFrames == 0)
+                // A credit boundary must be reachable by whole batches and fit in the window.
+                // This permits matching ACK policy across data batch sizes without deadlock.
+                if (state.Received % o.AckEvery == 0 || state.Received % o.AckBoundary == 0)
                 {
                     Volatile.Write(ref state.Latest, state.Received);
                     state.Signal();
