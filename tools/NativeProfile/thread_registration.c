@@ -5,6 +5,7 @@
 #include <limits.h>
 #include <pthread.h>
 #include <signal.h>
+#include <stdatomic.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +18,22 @@
 extern void ProfilerRegisterThread(void);
 extern int ProfilerStart(const char *path);
 extern void ProfilerStop(void);
+// Public gperftools 2.15 C ABI; no profiler headers/binaries are vendored.
+struct ProfilerOptions {
+    int (*filter_in_thread)(void *);
+    void *filter_in_thread_arg;
+};
+extern int ProfilerStartWithOptions(const char *, const struct ProfilerOptions *);
+_Static_assert(ATOMIC_INT_LOCK_FREE == 2, "Signal filter requires lock-free atomics");
+static _Atomic int selected_tid;
+
+static int selected_thread(void *unused)
+{
+    (void)unused;
+    // Runs in the sampling signal handler: no allocation, locks or TLS lookup.
+    int target = atomic_load_explicit(&selected_tid, memory_order_relaxed);
+    return target == 0 || syscall(SYS_gettid) == target;
+}
 static int (*real_create)(pthread_t *, const pthread_attr_t *, void *(*)(void *), void *);
 static int audit_fd = -1;
 static int control_fd = -1;
@@ -71,20 +88,39 @@ static void *control(void *unused)
     if (pthread_setname_np(pthread_self(), "profiler ctl") != 0) _exit(96);
     FILE *input = fdopen(control_fd, "r");
     if (input == NULL) _exit(97);
-    char command[PATH_MAX + 16];
+    char command[PATH_MAX + 64];
     char active[PATH_MAX] = "";
     while (fgets(command, sizeof(command), input) != NULL)
     {
         command[strcspn(command, "\r\n")] = '\0';
         if (strncmp(command, "START ", 6) == 0 && active[0] == '\0' && strlen(command + 6) < sizeof(active))
         {
+            selected_tid = 0;
             if (!ProfilerStart(command + 6)) _exit(98);
             strcpy(active, command + 6);
+            acknowledge("STARTED", active);
+        }
+        else if (strncmp(command, "START_TID ", 10) == 0 && active[0] == '\0')
+        {
+            char *end;
+            errno = 0;
+            long tid = strtol(command + 10, &end, 10);
+            if (errno != 0 || tid <= 0 || tid > INT_MAX || *end != ' ' ||
+                end[1] == '\0' || strlen(end + 1) >= sizeof(active) ||
+                syscall(SYS_tgkill, getpid(), tid, 0) != 0) _exit(106);
+            selected_tid = (sig_atomic_t)tid;
+            struct ProfilerOptions options = { selected_thread, NULL };
+            if (!ProfilerStartWithOptions(end + 1, &options)) _exit(98);
+            strcpy(active, end + 1);
+            char selected[32];
+            snprintf(selected, sizeof(selected), "%ld", tid);
+            acknowledge("SELECTED_TID", selected);
             acknowledge("STARTED", active);
         }
         else if (strcmp(command, "STOP") == 0 && active[0] != '\0')
         {
             ProfilerStop();
+            selected_tid = 0;
             acknowledge("STOPPED", active);
             active[0] = '\0';
         }
@@ -170,6 +206,11 @@ double diagnostic_thread_cpu(void)
     struct timespec value;
     if (clock_gettime(CLOCK_THREAD_CPUTIME_ID, &value) != 0) abort();
     return value.tv_sec + value.tv_nsec / 1e9;
+}
+
+int diagnostic_thread_id(void)
+{
+    return (int)syscall(SYS_gettid);
 }
 
 static __thread volatile uint64_t observed;

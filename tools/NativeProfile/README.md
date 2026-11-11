@@ -55,3 +55,22 @@ Raw captures contain process IDs, host paths and JIT/runtime internals. They rem
 ignored local evidence and require sanitization before sharing. A hash does not make
 an unavailable raw artifact public. Keep profiler source/binary/symbol/log hashes with
 the result and preserve unsuccessful captures.
+
+The optional `START_TID <tid> <profile>` command uses gperftools2.15's public
+`ProfilerStartWithOptions` thread filter. It verifies that the selected TID belongs
+to this process and uses only a lock-free atomic load and gettid syscall in the
+signal handler. Build this registrar separately; preserve old captures' binaries.
+Filtered sample CPU must match the selected thread's CPU, not whole-process CPU.
+
+A portable calibration host and driver include native, managed, sleeping and mixed
+controls plus native-only/managed-only filters with both burners running concurrently:
+
+```sh
+dotnet build tools/NativeProfile/Calibration/Calibration.csproj -c Release
+python3 tools/NativeProfile/calibrate.py evidence/calibration --dotnet-launcher /path/to/dotnet-launcher --bridge /path/to/thread_registration.so --build tools/NativeProfile/Calibration/bin/Release/net10.0/Calibration.dll
+```
+
+After accounting checks, resolve both filtered profiles with the same-run JIT map and
+verify the expected native versus managed leaf identities. Calibration uses its project
+default GC; the transport benchmark still uses ServerGC. Sleep is an intentional
+negative sampling control. No native binary or debug symbols should be committed.
