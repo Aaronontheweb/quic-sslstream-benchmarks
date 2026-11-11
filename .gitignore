@@ -12,3 +12,4 @@ __pycache__/
 *.crt
 .env
 .env.*
+tools/NativeProfile/native-symbols
