@@ -43,7 +43,7 @@ internal static class Program
 internal sealed record Options(string Role, string Transport, string Certificate, string Pin, int Port,
     int Payload, int BatchCap, int Window, int RequestedAckEvery, double Warmup, double Seconds,
     long Frames, bool Diagnostics, int Fragment, string Corrupt, string Cancellation, int AbortAfterMilliseconds,
-    int RequestedAckBoundary)
+    int RequestedAckBoundary, bool ProgressDiagnostics, int ProgressSampleEvery)
 {
     internal int FrameBytes => checked(Payload + 8);
     internal int BatchFrames => Math.Min(Window, BatchCap == 0 ? 1 : BatchCap / FrameBytes);
@@ -57,7 +57,8 @@ internal sealed record Options(string Role, string Transport, string Certificate
             throw new ArgumentException("First argument must be server or client.");
         var values = new Dictionary<string, string>();
         var known = new HashSet<string>(["transport", "cert", "pin", "port", "payload", "batch", "window",
-            "ack-every", "warmup", "seconds", "frames", "diagnostics", "fragment", "corrupt", "cancellation", "abort-after-ms", "ack-boundary"]);
+            "ack-every", "warmup", "seconds", "frames", "diagnostics", "fragment", "corrupt", "cancellation", "abort-after-ms", "ack-boundary",
+            "progress-diagnostics", "progress-sample-every"]);
         for (var i = 1; i < args.Length; i += 2)
         {
             if (i + 1 == args.Length || !args[i].StartsWith("--", StringComparison.Ordinal)
@@ -71,7 +72,8 @@ internal sealed record Options(string Role, string Transport, string Certificate
             Number("port", 0), Number("payload", 348), Number("batch", 16384), Number("window", 1280),
             Number("ack-every", 10), Real("warmup", 2), Real("seconds", 6),
             long.Parse(Get("frames", "0"), System.Globalization.CultureInfo.InvariantCulture),
-            bool.Parse(Get("diagnostics", "false")), Number("fragment", 0), Get("corrupt", "none"), Get("cancellation", "operation"), Number("abort-after-ms", 0), Number("ack-boundary", 0));
+            bool.Parse(Get("diagnostics", "false")), Number("fragment", 0), Get("corrupt", "none"), Get("cancellation", "operation"), Number("abort-after-ms", 0), Number("ack-boundary", 0),
+            bool.Parse(Get("progress-diagnostics", "false")), Number("progress-sample-every", 64));
         if (result.Transport is not ("quic" or "tls") || !File.Exists(result.Certificate) || result.Pin.Length != 40
             || result.Port is < 0 or > 65535 || (result.Role == "client" && result.Port == 0)
             || result.Payload is < 1 or > 65536 || result.BatchCap is < 0 or > 1048576
@@ -80,7 +82,8 @@ internal sealed record Options(string Role, string Transport, string Certificate
             || result.Warmup < 0.01 || result.Warmup > 20 || result.Seconds < 0.01 || result.Seconds > 30
             || !double.IsFinite(result.Warmup) || !double.IsFinite(result.Seconds) || result.Frames < 0
             || result.Fragment < 0 || result.Corrupt is not ("none" or "sequence" or "payload")
-            || result.Cancellation is not ("operation" or "lifetime") || result.AbortAfterMilliseconds < 0)
+            || result.Cancellation is not ("operation" or "lifetime") || result.AbortAfterMilliseconds < 0
+            || result.ProgressSampleEvery is < 1 or > 1048576)
             throw new ArgumentException("Invalid transport, identity, workload or bounds.");
         return result;
     }
@@ -188,12 +191,15 @@ internal sealed class Session(Stream stream, QuicConnection? connection, TcpClie
         if (protocol != SslProtocols.Tls13 || negotiated != Cipher || alpn != Alpn || remote is null
             || !remote.GetCertHashString().Equals(o.Pin, StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("Negotiated security does not match the control.");
+        using var process = Process.GetCurrentProcess();
         Program.Emit("SECURITY", new { role = o.Role, transport = o.Transport, tls = protocol.ToString(),
             cipher = negotiated.ToString(), alpn = alpn.ToString(), peerPin = remote.GetCertHashString(),
             mutual = true, tcpSendBuffer = tcp?.SendBufferSize, tcpReceiveBuffer = tcp?.ReceiveBufferSize,
             runtime = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,
             architecture = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString(),
             serverGc = System.Runtime.GCSettings.IsServerGC,
+            processorAffinity = (long)process.ProcessorAffinity, processorCount = Environment.ProcessorCount,
+            gcLatencyMode = System.Runtime.GCSettings.LatencyMode.ToString(),
             nativeLibraries = File.ReadLines("/proc/self/maps").Select(line => line.Split(' ', StringSplitOptions.RemoveEmptyEntries)[^1])
                 .Where(path => path.StartsWith('/') && new[] { "libmsquic", "libcoreclr", "libssl", "libcrypto" }
                     .Any(prefix => Path.GetFileName(path).StartsWith(prefix, StringComparison.Ordinal))).Distinct().Order().ToArray() });

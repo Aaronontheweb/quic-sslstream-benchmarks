@@ -8,6 +8,44 @@ IDENTITY=ROOT/'.local/identity'
 NATIVE_PINS=ROOT/'.local/native-pins.json'
 EXPECTED_RUNTIME='.NET 10.0.14'
 BINARY=ROOT/'bin/Release/net10.0/TransportSpike.dll'
+PROGRESS_SCHEMA=True
+
+def validate_progress(phase, enabled, interval, sender, require_schema=True):
+    if require_schema and any(k not in phase for k in ('progressDiagnostics','progressSampleEvery','progress')):
+        raise RuntimeError('Missing progress schema')
+    if phase.get('progressDiagnostics',False)!=enabled or phase.get('progressSampleEvery',64)!=interval:
+        raise RuntimeError('Progress parameters differ')
+    progress=phase.get('progress')
+    if not enabled or not sender:
+        if progress is not None:raise RuntimeError('Unexpected progress counters')
+        return
+    if not isinstance(progress,dict):raise RuntimeError('Missing sender progress counters')
+    frequency=progress['clockFrequency']
+    if not isinstance(frequency,int) or frequency<=0:raise RuntimeError('Invalid progress clock')
+    episodes,reads,ready,awaited=(progress[k] for k in ('creditEpisodes','creditChannelReads','creditChannelReadsReady','creditChannelReadsAwaited'))
+    if any(not isinstance(v,int) or v<0 for v in (episodes,reads,ready,awaited,progress['dataWritesReady'])):
+        raise RuntimeError('Invalid progress counters')
+    if episodes>reads or reads!=ready+awaited or progress['dataWritesReady']>phase['dataWrites']:
+        raise RuntimeError('Invalid progress count arithmetic')
+    samples=(phase['dataWrites']+interval-1)//interval
+    for name,count in [('creditWait',episodes),('write',samples),('invocation',samples),('remaining',samples)]:
+        h=progress[name]; bins=h['bins']
+        if len(bins)!=65 or any(not isinstance(n,int) or n<0 for n in bins) or sum(bins)!=count or h['count']!=count:
+            raise RuntimeError('Progress histogram count differs')
+        if count==0:
+            if h['totalTicks']!=0 or h['minimumTicks'] is not None or h['maximumTicks'] is not None:
+                raise RuntimeError('Nonempty progress histogram')
+        else:
+            low,high,total=h['minimumTicks'],h['maximumTicks'],h['totalTicks']
+            if not all(isinstance(n,int) for n in (low,high,total)) or not 0<=low<=high or not low*count<=total<=high*count:
+                raise RuntimeError('Progress histogram bounds differ')
+            lower=sum(n*(0 if i==0 else 1<<(i-1)) for i,n in enumerate(bins))
+            upper=sum(n*((1<<i)-1) for i,n in enumerate(bins))
+            if not lower<=total<=upper:raise RuntimeError('Progress histogram bins differ')
+    if progress['write']['totalTicks']!=progress['invocation']['totalTicks']+progress['remaining']['totalTicks']:
+        raise RuntimeError('Progress write duration arithmetic differs')
+    if progress['creditWait']['totalTicks']/frequency>phase['elapsedSeconds']:
+        raise RuntimeError('Credit wait exceeds sender phase')
 
 def digest(p):
     with Path(p).open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
@@ -101,6 +139,11 @@ def cell(path, transport, settings, client_extra=(), failure=None):
                 for endpoint in (c,s):
                     if endpoint.get('ackBoundaryFrames',batch)!=(boundary or batch) or endpoint['ackAtBatchBoundary']!=(boundary==0):
                         raise RuntimeError('ACK boundary differs from requested policy')
+                    if (endpoint['requestedAckEvery'],endpoint['effectiveAckEvery'])!=(int(expected.get('--ack-every',10)),min(window,int(expected.get('--ack-every',10)))):
+                        raise RuntimeError('ACK frequency differs from requested policy')
+                    if endpoint['creditBytes']!=window*frame_bytes or endpoint['cancellation']!=expected.get('--cancellation','operation') or endpoint['diagnostics']!=(expected.get('--diagnostics','false')=='true'):
+                        raise RuntimeError('Reported credit/cancellation/diagnostics differ')
+                    validate_progress(endpoint,expected.get('--progress-diagnostics','false')=='true',int(expected.get('--progress-sample-every',64)),endpoint is c,PROGRESS_SCHEMA)
                 fragment=int(expected.get('--fragment',0))
                 full,tail=divmod(c['frames'],batch)
                 calls=full*((batch*frame_bytes+fragment-1)//fragment if fragment else 1)
@@ -123,7 +166,7 @@ def cell(path, transport, settings, client_extra=(), failure=None):
             if not '--frames' in settings and phases['client'][1]['elapsedSeconds']<float(settings[settings.index('--seconds')+1]):
                 raise RuntimeError('Measured duration too short')
             row.update(status='valid',phases=phases,security=security)
-        except (OSError,ValueError,RuntimeError,subprocess.TimeoutExpired) as error:
+        except (OSError,ValueError,RuntimeError,KeyError,TypeError,subprocess.TimeoutExpired) as error:
             row['error']=str(error)
         finally:
             if client:stop(client)
@@ -132,17 +175,20 @@ def cell(path, transport, settings, client_extra=(), failure=None):
     return row
 
 def main():
-    global BINARY, EXPECTED_RUNTIME, NATIVE_PINS
+    global BINARY, EXPECTED_RUNTIME, NATIVE_PINS, PROGRESS_SCHEMA
     parser=argparse.ArgumentParser();parser.add_argument('mode',choices=['check','run']);parser.add_argument('output',type=Path)
     parser.add_argument('--build',type=Path,default=BINARY);parser.add_argument('--rounds',type=int,default=2);parser.add_argument('--payload',type=int,default=348)
     parser.add_argument('--batch',type=int,default=16384);parser.add_argument('--window',type=int,default=1280)
     parser.add_argument('--seconds',type=float,default=6);parser.add_argument('--warmup',type=float,default=2)
     parser.add_argument('--diagnostics',action='store_true');parser.add_argument('--cancellation',choices=['operation','lifetime'],default='operation')
     parser.add_argument('--ack-boundary',type=int,default=0)
+    parser.add_argument('--progress-diagnostics',action='store_true')
+    parser.add_argument('--progress-sample-every',type=int,default=64)
     parser.add_argument('--expected-runtime',default=EXPECTED_RUNTIME)
     parser.add_argument('--native-pins',type=Path,default=NATIVE_PINS)
     a=parser.parse_args();BINARY=a.build.resolve();EXPECTED_RUNTIME=a.expected_runtime;NATIVE_PINS=a.native_pins.resolve()
     if a.rounds<=0:parser.error('rounds must be positive')
+    if not 1<=a.progress_sample_every<=1048576:parser.error('progress sampling interval outside bounds')
     if not NATIVE_PINS.is_file() or not (IDENTITY/'loopback.pfx').is_file():parser.error('Run prepare.py first')
     a.output.mkdir(parents=True,exist_ok=False)
     sources={str(p.relative_to(ROOT)):digest(p) for p in ROOT.iterdir() if p.suffix in ('.cs','.csproj','.py','.md','.json')}
@@ -153,6 +199,8 @@ def main():
         for name,sha in build['files'].items():
             if digest(BINARY.parent/name)!=sha:raise RuntimeError('Frozen build changed before run')
         manifest['frozen_build']=build
+        PROGRESS_SCHEMA='ProgressCounters.cs' in build['source_sha256']
+    if a.progress_diagnostics and not PROGRESS_SCHEMA:parser.error('Frozen build lacks progress diagnostics')
     (a.output/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
     specs=[]
     if a.mode=='check':
@@ -165,9 +213,24 @@ def main():
     else:
         options=['--payload',str(a.payload),'--batch',str(a.batch),'--window',str(a.window),'--seconds',str(a.seconds),'--warmup',str(a.warmup),'--diagnostics',str(a.diagnostics).lower(),'--cancellation',a.cancellation]
         if a.ack_boundary:options+=['--ack-boundary',str(a.ack_boundary)]
+        # Keep the original frozen application usable as the disabled-path control.
+        if a.progress_diagnostics or a.progress_sample_every!=64:
+            options+=['--progress-diagnostics',str(a.progress_diagnostics).lower(),'--progress-sample-every',str(a.progress_sample_every)]
         for n in range(a.rounds):
             for transport in (('quic','tls') if n%2==0 else ('tls','quic')):specs.append((transport,options,[],None))
     if a.mode=='check':
+        if PROGRESS_SCHEMA:
+            for transport in ('tls','quic'):
+                for batch,window in [(65536,1280),(65536,5120),(131072,5120)]:
+                    for progress in ('false','true'):
+                        specs.append((transport,['--frames','8193','--payload','348','--batch',str(batch),'--window',str(window),'--ack-boundary','1104','--progress-diagnostics',progress,'--warmup','.1','--seconds','.1'],[],None))
+                # Window=1 forces repeated credit episodes; interval=8 checks multiple samples.
+                specs.append((transport,['--frames','137','--window','1','--batch','0','--progress-diagnostics','true','--progress-sample-every','8','--warmup','.1','--seconds','.1'],[],None))
+                specs.append((transport,['--frames','137','--window','7','--batch','1068','--fragment','17','--ack-every','100','--ack-boundary','6','--progress-diagnostics','true','--progress-sample-every','8','--warmup','.1','--seconds','.1'],[],None))
+                for key,value in [('--progress-diagnostics','true'),('--progress-sample-every','8')]:
+                    specs.append((transport,['--frames','8193','--warmup','.1','--seconds','.1'],[key,value],'Client/server workload differs'))
+                for cancellation in ('operation','lifetime'):
+                    specs.append((transport,['--warmup','2','--seconds','2','--cancellation',cancellation,'--progress-diagnostics','true'],['--abort-after-ms','50'],'ABORT_REQUESTED'))
         if a.ack_boundary:
             for transport in ('tls','quic'):
                 specs.append((transport,['--frames','137','--window','7','--batch','1068','--fragment','17','--ack-every','100','--ack-boundary','6','--warmup','.1','--seconds','.1'],[],None))
@@ -177,6 +240,9 @@ def main():
     rows=[]
     for index,(transport,settings,extra,failure) in enumerate(specs):
         row=cell(a.output/f'{index:02d}-{transport}',transport,settings,extra,failure);row['index']=index
+        if a.mode=='check' and row['status']=='valid' and '--progress-sample-every' in settings and settings[settings.index('--window')+1]=='1':
+            if any(p['progress']['creditEpisodes']<1 for p in row['phases']['client']):
+                row.update(status='invalid',error='Bounded credit check never entered credit gate')
         rows.append(row)
         with (a.output/'runs.jsonl').open('a') as f:f.write(json.dumps(row)+'\n')
         print(json.dumps({'index':index,'transport':transport,'status':row['status'],'error':row.get('error')}),flush=True)

@@ -7,6 +7,7 @@ import statistics
 import subprocess
 import sys
 from pathlib import Path
+from run_spike import validate_progress
 
 ROOT = Path(__file__).resolve().parent
 
@@ -55,6 +56,9 @@ def audit(path):
             if exported != log_records(log, 'PHASE') or row['security'][side] != log_records(log, 'SECURITY'):
                 raise ValueError('Exported witnesses differ from raw process log')
         for client, server in zip(row['phases']['client'], row['phases']['server']):
+            for endpoint in (client,server):
+                validate_progress(endpoint,args.get('progress_diagnostics',False),args.get('progress_sample_every',64),endpoint is client,
+                                  'ProgressCounters.cs' in manifest.get('frozen_build',{}).get('source_sha256',{}))
             if not client['complete'] or not server['complete'] or client['frames'] <= 0 or client['frames'] != server['frames'] or client['dataBytes'] != server['dataBytes']:
                 raise ValueError('Incomplete peer consumption')
             rate = client['frames'] / client['elapsedSeconds']

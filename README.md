@@ -73,6 +73,19 @@ no original private Git history or raw local artifacts are published.
 - One frame/write: `--batch 0 --window 1280 --ack-boundary 1104`.
 - Serial acknowledgment RTT: `--batch 0 --window 1` (samples every64th frame).
 - Separate managed allocation diagnostics: add `--diagnostics`.
+- Separate sender progress diagnostics: add `--progress-diagnostics`. The default
+  `--progress-sample-every 64` samples data writes 0, 64, 128, etc. It records
+  whole-batch insufficient-credit episodes and their elapsed durations, channel-read
+  readiness during those episodes, data-write readiness, and sampled write invocation
+  and completion durations. Counters/histograms are preallocated before timing;
+  marker/control writes are excluded. This mode is independent of GC diagnostics.
+  Keep both off for primary throughput and measure the progress mode's perturbation
+  separately. A readiness snapshot does not prove no asynchronous work occurred.
+  Completion durations are application observations, including continuation scheduling;
+  they are not native send durations or transport ACK times. Histogram bin 0 is zero
+  ticks; bin i > 0 covers [2^(i-1), 2^i-1] ticks at the reported clock frequency.
+  Invocation plus remaining observed duration equals total sampled write duration;
+  credit episodes are measured separately, not a decomposition of uninstrumented time.
 - Cancellation allocation experiment: add `--cancellation lifetime`. It retains
   bounded phase/global transport abort; native I/O omits individual tokens.
 - 4KiB sanity: `--payload 4096 --batch 65536 --window 111 --ack-boundary 105`.
@@ -82,6 +95,14 @@ Default0 preserves original batch-boundary ACK requests. That original policy ch
 reverse ACK frequency with batch size; use a common explicit boundary to isolate
 batch-size changes. Larger buffers and prebuilt saturated batches do not measure
 batching dwell time or offered-load tail latency.
+
+New builds' `check` mode explicitly exercises the 348B A/B/C cells (64KiB/1,280
+frames, 64KiB/5,120 frames, 128KiB/5,120 frames; common ACK boundary 1,104) with
+8,193 frames, diagnostics on and off. These exceed credit and end with a partial
+batch. It also checks bounded credit waits, progress parameter disagreement, and
+progress-enabled aborts. The original corruption, identity and abort checks remain.
+The old frozen build remains usable as an off-path control; its historical schema
+is accepted only when its frozen descriptor lacks the progress implementation.
 
 ## Inspect the publication without rerunning benchmarks
 

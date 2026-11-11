@@ -24,8 +24,10 @@ internal static class Protocol
         internal readonly byte[] AckReadBuffer = new byte[16];
         internal readonly byte[] AckWriteBuffer = new byte[16];
         internal readonly long[] Latencies = new long[65536];
+        internal readonly ProgressCounters? Progress;
         internal State(Options options)
         {
+            Progress = options.ProgressDiagnostics && options.Role == "client" ? new ProgressCounters() : null;
             Payload = Enumerable.Range(0, options.Payload).Select(i => (byte)(i * 31 + 7)).ToArray();
             SendBuffer = new byte[options.BatchBytes];
             for (var i = 0; i < options.BatchFrames; i++)
@@ -85,6 +87,8 @@ internal static class Protocol
                 elapsedSeconds = elapsed, cpuMilliseconds = cpu, allocatedBytes = allocated,
                 dataWrites = s.DataWrites, dataReads = s.DataReads, ackWrites = s.AckWrites, ackReads = s.AckReads,
                 maximumInFlight = s.MaximumInFlight, cancellation = o.Cancellation, diagnostics,
+                progressDiagnostics = o.ProgressDiagnostics, progressSampleEvery = o.ProgressSampleEvery,
+                progress = s.Progress?.Snapshot(),
                 latencySamples = s.Samples, omittedLatencySamples = s.OmittedSamples,
                 p50Us = Percentile(.50), p95Us = Percentile(.95), p99Us = Percentile(.99),
                 protocol = "fixed-frames-cumulative-ack-v1", complete = true
@@ -101,11 +105,13 @@ internal static class Protocol
         BinaryPrimitives.WriteInt32LittleEndian(header.AsSpan(16), o.BatchBytes);
         BinaryPrimitives.WriteInt32LittleEndian(header.AsSpan(20), o.Window);
         BinaryPrimitives.WriteInt32LittleEndian(header.AsSpan(24), o.AckEvery);
+        BinaryPrimitives.WriteInt32LittleEndian(header.AsSpan(28), o.ProgressDiagnostics ? 1 : 0);
         BinaryPrimitives.WriteInt64LittleEndian(header.AsSpan(32), o.Frames);
         BinaryPrimitives.WriteInt64LittleEndian(header.AsSpan(40), BitConverter.DoubleToInt64Bits(phase == 0 ? o.Warmup : o.Seconds));
         BinaryPrimitives.WriteInt32LittleEndian(header.AsSpan(48), o.Diagnostics ? 1 : 0);
         BinaryPrimitives.WriteInt32LittleEndian(header.AsSpan(52), o.Cancellation == "operation" ? 0 : 1);
         BinaryPrimitives.WriteInt32LittleEndian(header.AsSpan(56), o.AckBoundary);
+        BinaryPrimitives.WriteInt32LittleEndian(header.AsSpan(60), o.ProgressSampleEvery);
         return header;
     }
 
@@ -197,11 +203,30 @@ internal static class Protocol
         var started = Stopwatch.GetTimestamp();
         var seconds = phase == 0 ? o.Warmup : o.Seconds;
         var sent = 0L;
+        var progress = state.Progress;
         while (o.Frames > 0 ? sent < o.Frames : sent == 0 || Stopwatch.GetElapsedTime(started).TotalSeconds < seconds)
         {
             var batch = o.Frames > 0 ? (int)Math.Min(o.BatchFrames, o.Frames - sent) : o.BatchFrames;
-            while (o.Window - (sent - Volatile.Read(ref state.Acknowledged)) < batch)
-                await state.Wake.Reader.ReadAsync(stop);
+            if (progress is null)
+            {
+                while (o.Window - (sent - Volatile.Read(ref state.Acknowledged)) < batch)
+                    await state.Wake.Reader.ReadAsync(stop);
+            }
+            else if (o.Window - (sent - Volatile.Read(ref state.Acknowledged)) < batch)
+            {
+                var creditStarted = Stopwatch.GetTimestamp();
+                progress.CreditEpisodes++;
+                do
+                {
+                    var read = state.Wake.Reader.ReadAsync(stop);
+                    var ready = read.IsCompletedSuccessfully;
+                    progress.CreditChannelReads++;
+                    if (ready)
+                        progress.CreditChannelReadsReady++;
+                    await read;
+                } while (o.Window - (sent - Volatile.Read(ref state.Acknowledged)) < batch);
+                progress.CreditWait.Record(Stopwatch.GetTimestamp() - creditStarted);
+            }
             for (var i = 0; i < batch; i++)
                 BinaryPrimitives.WriteUInt64LittleEndian(buffer.AsSpan(i * o.FrameBytes), (ulong)(sent + i));
             if (sent == 0 && o.Corrupt != "none")
@@ -214,14 +239,42 @@ internal static class Protocol
             var length = batch * o.FrameBytes;
             if (o.Fragment == 0)
             {
-                await stream.WriteAsync(buffer.AsMemory(0, length), io);
+                if (progress is null)
+                    await stream.WriteAsync(buffer.AsMemory(0, length), io);
+                else
+                {
+                    var sampled = state.DataWrites % o.ProgressSampleEvery == 0;
+                    var before = sampled ? Stopwatch.GetTimestamp() : 0;
+                    var write = stream.WriteAsync(buffer.AsMemory(0, length), io);
+                    var invoked = sampled ? Stopwatch.GetTimestamp() : 0;
+                    var ready = write.IsCompletedSuccessfully;
+                    if (ready)
+                        progress.DataWritesReady++;
+                    await write;
+                    if (sampled)
+                        progress.RecordWrite(before, invoked, Stopwatch.GetTimestamp());
+                }
                 state.DataWrites++;
             }
             else
             {
                 for (var offset = 0; offset < length; offset += o.Fragment)
                 {
-                    await stream.WriteAsync(buffer.AsMemory(offset, Math.Min(o.Fragment, length - offset)), io);
+                    if (progress is null)
+                        await stream.WriteAsync(buffer.AsMemory(offset, Math.Min(o.Fragment, length - offset)), io);
+                    else
+                    {
+                        var sampled = state.DataWrites % o.ProgressSampleEvery == 0;
+                        var before = sampled ? Stopwatch.GetTimestamp() : 0;
+                        var write = stream.WriteAsync(buffer.AsMemory(offset, Math.Min(o.Fragment, length - offset)), io);
+                        var invoked = sampled ? Stopwatch.GetTimestamp() : 0;
+                        var ready = write.IsCompletedSuccessfully;
+                        if (ready)
+                            progress.DataWritesReady++;
+                        await write;
+                        if (sampled)
+                            progress.RecordWrite(before, invoked, Stopwatch.GetTimestamp());
+                    }
                     state.DataWrites++;
                 }
             }
