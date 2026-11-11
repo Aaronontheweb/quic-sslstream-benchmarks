@@ -24,6 +24,7 @@ def sha(path):
 
 def snapshot(pid):
     proc = Path(f'/proc/{pid}')
+    task_ids_before={p.name for p in (proc/'task').iterdir()}
     timers = (proc/'timers').read_text()
     targets = [int(tid) for tid in re.findall(r'notify:\s+signal/tid\.(\d+)', timers)]
     tasks = {}
@@ -38,7 +39,10 @@ def snapshot(pid):
         except FileNotFoundError:
             # A thread exiting during a /proc snapshot is explicitly unobservable.
             tasks[task.name] = dict(exitedDuringSnapshot=True)
-    return dict(monotonicSeconds=time.monotonic(), tasks=tasks, timerTargets=targets,
+    task_ids_after={p.name for p in (proc/'task').iterdir()}
+    return dict(monotonicSeconds=time.monotonic(), tasks=tasks,
+                stableTaskIds=sorted(task_ids_before & task_ids_after & tasks.keys()),
+                churnTaskIds=sorted(task_ids_before ^ task_ids_after), timerTargets=targets,
                 duplicateTimerTargets=sorted(tid for tid in set(targets) if targets.count(tid)>1),
                 rawTimers=timers, io=(proc/'io').read_text(), status=(proc/'status').read_text())
 
@@ -133,19 +137,21 @@ def main():
                 maps=Path(f'/proc/{pid}/maps').read_text()
                 (endpoint/'maps.txt').write_text(maps)
                 loaded={line.split()[-1] for line in maps.splitlines() if line.split()[-1].startswith('/')}
-                for expected in [args.registrar,args.profiler]:
-                    if not any(Path(file).resolve()==expected.resolve() and sha(file)==sha(expected) for file in loaded):
+                for expected,digest in [(args.registrar,record['registrarSha256']),(args.profiler,record['profilerSha256'])]:
+                    if not any(Path(file).resolve()==expected.resolve() and sha(file)==digest for file in loaded):
                         raise RuntimeError('Pinned profiling instrumentation not mapped')
                 info['quit']=command(endpoint,'QUIT','QUITTED','-',controller)
                 registered={int(line.split()[1]) for line in (endpoint/'threads.log').read_text().splitlines()}
                 for name in ['startSnapshot','endSnapshot']:
-                    snap=info[name]; live={int(tid) for tid,row in snap['tasks'].items() if 'exitedDuringSnapshot' not in row}
+                    snap=info[name]; live={int(tid) for tid in snap['stableTaskIds'] if 'exitedDuringSnapshot' not in snap['tasks'][tid]}
                     snap['missingRegisteredThreads']=sorted(live-registered)
                     snap['missingTimerThreads']=sorted(live-set(snap['timerTargets']))
                     if snap['missingRegisteredThreads'] or snap['missingTimerThreads'] or snap['duplicateTimerTargets']:
                         raise RuntimeError('Thread/timer registration coverage failed')
             controller.wait(timeout=40)
             if controller.returncode:raise RuntimeError('Controller failed')
+            if sha(args.registrar)!=record['registrarSha256'] or sha(args.profiler)!=record['profilerSha256']:
+                raise RuntimeError('Profiler instrumentation changed during capture')
             record.update(status='complete',controllerExit=controller.returncode,completedUnixSeconds=time.time())
         finally:
             if controller.poll() is None:
