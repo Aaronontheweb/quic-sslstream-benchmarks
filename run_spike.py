@@ -132,7 +132,7 @@ def cell(path, transport, settings, client_extra=(), failure=None):
     return row
 
 def main():
-    global BINARY, EXPECTED_RUNTIME
+    global BINARY, EXPECTED_RUNTIME, NATIVE_PINS
     parser=argparse.ArgumentParser();parser.add_argument('mode',choices=['check','run']);parser.add_argument('output',type=Path)
     parser.add_argument('--build',type=Path,default=BINARY);parser.add_argument('--rounds',type=int,default=2);parser.add_argument('--payload',type=int,default=348)
     parser.add_argument('--batch',type=int,default=16384);parser.add_argument('--window',type=int,default=1280)
@@ -140,12 +140,13 @@ def main():
     parser.add_argument('--diagnostics',action='store_true');parser.add_argument('--cancellation',choices=['operation','lifetime'],default='operation')
     parser.add_argument('--ack-boundary',type=int,default=0)
     parser.add_argument('--expected-runtime',default=EXPECTED_RUNTIME)
-    a=parser.parse_args();BINARY=a.build.resolve();EXPECTED_RUNTIME=a.expected_runtime
+    parser.add_argument('--native-pins',type=Path,default=NATIVE_PINS)
+    a=parser.parse_args();BINARY=a.build.resolve();EXPECTED_RUNTIME=a.expected_runtime;NATIVE_PINS=a.native_pins.resolve()
     if a.rounds<=0:parser.error('rounds must be positive')
     if not NATIVE_PINS.is_file() or not (IDENTITY/'loopback.pfx').is_file():parser.error('Run prepare.py first')
     a.output.mkdir(parents=True,exist_ok=False)
     sources={str(p.relative_to(ROOT)):digest(p) for p in ROOT.iterdir() if p.suffix in ('.cs','.csproj','.py','.md','.json')}
-    manifest=dict(mode=a.mode,arguments=vars(a)|{'output':str(a.output),'build':str(a.build)},source_sha256=sources,binary_sha256=digest(BINARY),runtimeconfig=json.loads(BINARY.with_suffix('.runtimeconfig.json').read_text()),launcher_sha256=digest(LAUNCHER),native_pins_sha256=digest(NATIVE_PINS),certificate_sha256=digest(IDENTITY/'loopback.pfx'),dotnet_info=subprocess.check_output([str(LAUNCHER),'--info'],text=True,cwd=ROOT),revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip() if (ROOT/'.git/HEAD').exists() and subprocess.run(['git','rev-parse','--verify','HEAD'],cwd=ROOT,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0 else None)
+    manifest=dict(mode=a.mode,arguments=vars(a)|{'output':str(a.output),'build':str(a.build),'native_pins':str(a.native_pins)},source_sha256=sources,binary_sha256=digest(BINARY),runtimeconfig=json.loads(BINARY.with_suffix('.runtimeconfig.json').read_text()),launcher_sha256=digest(LAUNCHER),native_pins_sha256=digest(NATIVE_PINS),certificate_sha256=digest(IDENTITY/'loopback.pfx'),dotnet_info=subprocess.check_output([str(LAUNCHER),'--info'],text=True,cwd=ROOT),revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip() if (ROOT/'.git/HEAD').exists() and subprocess.run(['git','rev-parse','--verify','HEAD'],cwd=ROOT,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0 else None)
     build_record=BINARY.parent/'build.json'
     if build_record.exists():
         build=json.loads(build_record.read_text())
