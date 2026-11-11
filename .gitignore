@@ -1,0 +1,14 @@
+bin/
+obj/
+evidence/
+builds/
+.local/
+__pycache__/
+*.log
+*.pfx
+*.p12
+*.pem
+*.key
+*.crt
+.env
+.env.*
