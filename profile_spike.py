@@ -23,9 +23,11 @@ def sha(path):
 
 
 def snapshot(pid):
+    started=time.monotonic()
     proc = Path(f'/proc/{pid}')
     task_ids_before={p.name for p in (proc/'task').iterdir()}
     timers = (proc/'timers').read_text()
+    timers_read=time.monotonic()
     targets = [int(tid) for tid in re.findall(r'notify:\s+signal/tid\.(\d+)', timers)]
     tasks = {}
     for task in (proc/'task').iterdir():
@@ -40,7 +42,7 @@ def snapshot(pid):
             # A thread exiting during a /proc snapshot is explicitly unobservable.
             tasks[task.name] = dict(exitedDuringSnapshot=True)
     task_ids_after={p.name for p in (proc/'task').iterdir()}
-    return dict(monotonicSeconds=time.monotonic(), tasks=tasks,
+    return dict(snapshotStartedMonotonic=started,timersReadMonotonic=timers_read,monotonicSeconds=time.monotonic(), tasks=tasks,
                 stableTaskIds=sorted(task_ids_before & task_ids_after & tasks.keys()),
                 churnTaskIds=sorted(task_ids_before ^ task_ids_after), timerTargets=targets,
                 duplicateTimerTargets=sorted(tid for tid in set(targets) if targets.count(tid)>1),
@@ -153,6 +155,9 @@ def main():
             if sha(args.registrar)!=record['registrarSha256'] or sha(args.profiler)!=record['profilerSha256']:
                 raise RuntimeError('Profiler instrumentation changed during capture')
             record.update(status='complete',controllerExit=controller.returncode,completedUnixSeconds=time.time())
+        except BaseException as error:
+            record.update(status='failed',errorType=type(error).__name__,error=str(error))
+            raise
         finally:
             if controller.poll() is None:
                 # SIGINT lets cell() run its finally block for both separate child sessions.
