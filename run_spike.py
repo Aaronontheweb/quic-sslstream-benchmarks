@@ -192,7 +192,7 @@ def main():
     if not NATIVE_PINS.is_file() or not (IDENTITY/'loopback.pfx').is_file():parser.error('Run prepare.py first')
     a.output.mkdir(parents=True,exist_ok=False)
     sources={str(p.relative_to(ROOT)):digest(p) for p in ROOT.iterdir() if p.suffix in ('.cs','.csproj','.py','.md','.json')}
-    manifest=dict(mode=a.mode,arguments=vars(a)|{'output':str(a.output),'build':str(a.build),'native_pins':str(a.native_pins)},source_sha256=sources,binary_sha256=digest(BINARY),runtimeconfig=json.loads(BINARY.with_suffix('.runtimeconfig.json').read_text()),launcher_sha256=digest(LAUNCHER),native_pins_sha256=digest(NATIVE_PINS),certificate_sha256=digest(IDENTITY/'loopback.pfx'),dotnet_info=subprocess.check_output([str(LAUNCHER),'--info'],text=True,cwd=ROOT),revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip() if (ROOT/'.git/HEAD').exists() and subprocess.run(['git','rev-parse','--verify','HEAD'],cwd=ROOT,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0 else None)
+    manifest=dict(mode=a.mode,arguments=vars(a)|{'output':str(a.output),'build':str(a.build),'native_pins':str(a.native_pins)},source_sha256=sources,binary_sha256=digest(BINARY),runtimeconfig=json.loads(BINARY.with_suffix('.runtimeconfig.json').read_text()),launcher_sha256=digest(LAUNCHER),native_pins_sha256=digest(NATIVE_PINS),certificate_sha256=digest(IDENTITY/'loopback.pfx'),dotnet_info=subprocess.check_output([str(LAUNCHER),'--info'],text=True,cwd=ROOT),revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip())
     build_record=BINARY.parent/'build.json'
     if build_record.exists():
         build=json.loads(build_record.read_text())

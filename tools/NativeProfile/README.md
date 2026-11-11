@@ -74,3 +74,36 @@ After accounting checks, resolve both filtered profiles with the same-run JIT ma
 verify the expected native versus managed leaf identities. Calibration uses its project
 default GC; the transport benchmark still uses ServerGC. Sleep is an intentional
 negative sampling control. No native binary or debug symbols should be committed.
+
+## Native flow and identified-worker captures
+
+Optional LTTng2 userspace tooling and the deployed matching
+`libmsquic.lttng.so.<version>` allow connection-worker identity, flow and UDP datapath
+observations. Keep that extra tracing library separately pinned; do not silently
+replace the original timing pins. Use compatible Babeltrace2 Python bindings/plugins
+for decoding. These tools use a private session daemon and retain failed capture state.
+
+```sh
+python3 tools/NativeProfile/trace_spike.py evidence/native-flow --runtime-root /path/to/dotnet-root --native-directory /path/to/native-libraries --lttng-root / --trace-library /path/to/libmsquic.lttng.so.2.6.3 --build builds/current/TransportSpike.dll
+python3 tools/NativeProfile/analyze_native.py evidence/native-flow .local/native-flow-decoded.json
+python3 tools/NativeProfile/profile_worker.py evidence/native-worker --runtime-root /path/to/dotnet-root --native-directory /path/to/native-libraries --lttng-root / --trace-library /path/to/libmsquic.lttng.so.2.6.3 --build builds/current/TransportSpike.dll --registrar /path/to/thread_registration.so --profiler /path/to/libprofiler.so.0
+python3 tools/NativeProfile/analyze_worker_profile.py evidence/native-worker .local/native-worker-decoded.json
+```
+
+Set `--lttng-root` to an extracted package root if not installed system-wide. Binding
+and plugin paths (`PYTHONPATH`, `BABELTRACE_PLUGIN_PATH`, `LD_LIBRARY_PATH`) must match
+that installation. The decoders check capture artifact hashes and the normal controller
+run before interpreting events; they retain unknown initial states and discarded-event
+guards. They require the original matching build/native files for that local audit.
+Resolve each filtered `cpu.prof` with `resolve_profile.py` and its same-run map afterward.
+
+The flow tool brackets a quiet two-second worker CPU interval with mapping events,
+then captures a short hot flow window. The filtered tool selects a candidate native
+thread and verifies it is the actual connection worker before/after sampling; it disables
+hot flow/mapping channels during profiling. Selected-thread sample CPU must match that
+thread's accounting. Failure of identity/timer/source/native checks invalidates capture.
+
+The published causal study used private, fixed-path recorder versions. These portable
+recorders substitute CLI paths and add targeted child cleanup; they were source-reviewed
+and CLI-checked, not rerun as new captures. Public decoders replayed the original raw
+captures. This distinction is part of the reproduction limit, not a second experiment.
