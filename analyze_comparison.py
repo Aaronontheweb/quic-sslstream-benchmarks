@@ -8,14 +8,13 @@ import subprocess
 from pathlib import Path
 
 from run_comparison import ROOT, specifications
-from run_spike import digest, records
+from run_spike import digest, records, validate_native
 
 
 def validate(manifest, rows, complete):
     specs = specifications(manifest['mode'], manifest['rounds'])
     if complete != {'state': 'complete', 'attempts': len(specs)} or len(rows) != len(specs) or manifest['expectedAttempts'] != len(specs):
         raise ValueError('Incomplete matrix coverage')
-    configs = []
     for name, variant in manifest['variants'].items():
         build = variant['build']
         runtime = '10.0.14' if name == 'net10-classic' else '11.0.0'
@@ -47,8 +46,7 @@ def validate(manifest, rows, complete):
             security = row['security'][side][0]
             if (security['runtime'], security['tls'], security['cipher'], security['alpn'], security['mutual'], security['serverGc']) != (variant['build']['expectedRuntime'], 'Tls13', 'TLS_AES_128_GCM_SHA256', 'transport-spike-v1', True, True):
                 raise ValueError('Runtime or security differs')
-            if row['endpoint_native_sha256'][side] != variant['nativePins']:
-                raise ValueError('Endpoint native library hashes differ')
+            validate_native(row['endpoint_native_sha256'][side], row['transport'], variant['nativePins'])
         for client, server in zip(row['phases']['client'], row['phases']['server']):
             frame = spec['payload'] + 8
             batch = min(spec['window'], 1 if spec['batch'] == 0 else spec['batch'] // frame)
